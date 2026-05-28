@@ -64,117 +64,147 @@ Create routing structure with react-router-dom:
 <li>Add styling using CSS or Tailwind.</li>
 
 ## PROGRAM
-### BMICalcultor.jsx
-```jsx
-import React, { useState } from "react";
+### Index.js
+```
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-export default function BMICalculator() {
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
-  const [bmi, setBmi] = useState(null);
-  const [category, setCategory] = useState("");
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+```
+### App.js
+```
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./Home";
+import BMIForm from "./BMIForm";
+import Result from "./Result";
 
-  const calculateBMI = () => {
-    if (!weight || !height) {
-      alert("Please enter both values");
-      return;
-    }
-
-    const heightInMeters = height / 100;
-    const bmiValue = (weight / (heightInMeters * heightInMeters)).toFixed(2);
-
-    setBmi(bmiValue);
-    setCategory(getBMICategory(bmiValue));
-  };
-
-  const getBMICategory = (bmi) => {
-    if (bmi < 18.5) return "Underweight";
-    if (bmi >= 18.5 && bmi < 24.9) return "Normal weight";
-    if (bmi >= 25 && bmi < 29.9) return "Overweight";
-    return "Obese";
-  };
-
+function App() {
   return (
-    <div style={styles.container}>
-      <h2>BMI Calculator</h2>
-
-      <input
-        type="number"
-        placeholder="Weight (kg)"
-        value={weight}
-        onChange={(e) => setWeight(e.target.value)}
-        style={styles.input}
-      />
-
-      <input
-        type="number"
-        placeholder="Height (cm)"
-        value={height}
-        onChange={(e) => setHeight(e.target.value)}
-        style={styles.input}
-      />
-
-      <button onClick={calculateBMI} style={styles.button}>
-        Calculate BMI
-      </button>
-
-      {bmi && (
-        <div style={styles.result}>
-          <p>
-            <strong>BMI:</strong> {bmi}
-          </p>
-          <p>
-            <strong>Category:</strong> {category}
-          </p>
-        </div>
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/bmi" element={<BMIForm />} />
+        <Route path="/result" element={<Result />} />
+      </Routes>
+    </Router>
   );
 }
 
-const styles = {
-  container: {
-    maxWidth: "300px",
-    margin: "50px auto",
-    textAlign: "center",
-    fontFamily: "Arial",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    margin: "10px 0",
-    fontSize: "16px",
-  },
-  button: {
-    padding: "10px",
-    width: "100%",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-  result: {
-    marginTop: "20px",
-  },
-};
+export default App;
 ```
-
-### main.jsx
-```jsx
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import BMICalculator from "./BMICalculator";
-
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <BMICalculator />
-  </StrictMode>,
-);
+### Home.js
 ```
+import { useNavigate } from "react-router-dom";
 
+export default function Home() {
+  const navigate = useNavigate();
 
+  return (
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <h1>BMI Calculator</h1>
+      <button onClick={() => navigate("/bmi")}>
+        Go to Calculator
+      </button>
+    </div>
+  );
+}
+```
+### BMIForm.js
+```
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function BMIForm() {
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!height || !weight || isNaN(height) || isNaN(weight)) {
+      setError("Enter valid numbers");
+      return;
+    }
+
+    navigate("/result", {
+      state: { height, weight }
+    });
+  };
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>Enter Details</h2>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Height (cm)"
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+        />
+        <br /><br />
+
+        <input
+          type="text"
+          placeholder="Weight (kg)"
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+        />
+        <br /><br />
+
+        <button type="submit">Calculate BMI</button>
+      </form>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+}
+```
+### Result.js
+```
+import { useLocation, useNavigate } from "react-router-dom";
+
+export default function Result() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { height, weight } = location.state || {};
+
+  if (!height || !weight) {
+    return <p>No data found</p>;
+  }
+
+  const h = height / 100;
+  const bmi = (weight / (h * h)).toFixed(2);
+
+  let category = "";
+
+  if (bmi < 18.5) category = "Underweight";
+  else if (bmi < 24.9) category = "Normal";
+  else if (bmi < 29.9) category = "Overweight";
+  else category = "Obese";
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>Your BMI: {bmi}</h2>
+      <h3>{category}</h3>
+
+      <button onClick={() => navigate("/bmi")}>
+        Calculate Again
+      </button>
+    </div>
+  );
+}
+```
 ## OUTPUT
+<img width="1797" height="865" alt="image" src="https://github.com/user-attachments/assets/feb1fd08-db47-40dd-9f46-baed8730bdca" />
 
-<img width="1686" height="793" alt="image" src="https://github.com/user-attachments/assets/17d4625c-66dd-45ff-9c65-1ba4c6c43cce" />
+<img width="1696" height="657" alt="Screenshot 2026-03-17 203356" src="https://github.com/user-attachments/assets/073d14da-bc6e-4c88-8946-6e1759df93d7" />
 
 
 
