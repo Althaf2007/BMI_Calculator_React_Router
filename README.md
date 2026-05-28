@@ -174,7 +174,8 @@ createRoot(document.getElementById("root")).render(
 
 ## OUTPUT
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/fe9c5261-3242-41f5-b007-5c4df0772127" />
+<img width="1686" height="793" alt="image" src="https://github.com/user-attachments/assets/17d4625c-66dd-45ff-9c65-1ba4c6c43cce" />
+
 
 
 
